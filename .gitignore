@@ -1,1 +1,6 @@
 data-structures/
+*.class
+*.o
+*.ko
+*.obj
+*.elf
