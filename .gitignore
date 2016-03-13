@@ -6,3 +6,6 @@ data-structures/
 *.elf
 bin/
 *.out
+*.symvers
+*.order
+*.mod.c
