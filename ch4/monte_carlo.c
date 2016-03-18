@@ -67,6 +67,8 @@ int main(int argc, char *argv[])
 
 	printf("%f\n", 4.0 * (count / tinfo->randc));
 
+	free(tinfo);
+
 	return 0;
 }
 
