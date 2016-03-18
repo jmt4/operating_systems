@@ -20,7 +20,13 @@
 
 #define WORDSIZE (sizeof(char)*CHAR_BIT)
 
-/* initialize var ts_queue as struct list_head */
+/*
+ * The purpose of this module is to explore the process
+ * tree in depth-first search fashion. Specifically, 
+ * pre-order traversal starting from the init task.
+ */
+
+/* initialize stack as struct list_head */
 LIST_HEAD(task_stack);
 unsigned char *visited;
 
@@ -64,7 +70,9 @@ static inline void print_stack_item(struct stack_item *item)
 
 static struct stack_item *pop_head(void)
 {
-	struct stack_item *ptr = list_first_entry(&task_stack, struct stack_item, list);
+	struct stack_item *ptr = list_first_entry(&task_stack, 
+		struct stack_item, list);
+
 	list_del(task_stack.next);
 	return ptr;
 }
@@ -77,6 +85,7 @@ int task_dfs_init(void)
 
 	printk(KERN_INFO "Loading Module\n");
 
+	/* use bit vector to mark explored tasks */
 	visited = kzalloc(MAX_PID/WORDSIZE + 1, GFP_KERNEL);
 	sitem = kmalloc(sizeof(*sitem), GFP_KERNEL);
 	tsk = list_first_entry(	&(init_task.children), 
@@ -86,15 +95,15 @@ int task_dfs_init(void)
 	init_stack_item(sitem, tsk, init_task.pid);
 
 	list_for_each_entry(ptr, &task_stack, list) {
-		/* pop ptr */
+		/* unhook first stack_item from stack linked-list */
 		tmp = pop_head();
 		print_stack_item(tmp);
 		if (!pid_check_bit(visited, tmp->task->pid)) {		
 
 			pid_set_bit(visited, tmp->task->pid);
 
+			/* push children onto stack */
 			list_for_each(lst, &tmp->task->children) {
-
 				tsk = list_entry(lst, struct task_struct, sibling);
 				sitem = kmalloc(sizeof(*sitem), GFP_KERNEL);
 				init_stack_item(sitem, tsk, tmp->task->pid);
@@ -108,7 +117,6 @@ int task_dfs_init(void)
 		/* set ptr to head of list */
 		ptr = container_of(task_stack.next, struct stack_item, list);
 	}
-	
 	return 0;
 }
 
