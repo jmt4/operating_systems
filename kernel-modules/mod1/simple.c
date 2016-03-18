@@ -40,7 +40,7 @@ int simple_init(void)
 }
 
 /* This function is called when the module is removed. */
-int simple_exit(void)
+void simple_exit(void)
 {
 	printk(KERN_INFO "Deallocating memory for birthday list\n");
 	struct birthday *ptr, *next;
